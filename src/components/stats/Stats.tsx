@@ -1,98 +1,91 @@
-// YourComponent.tsx
-
-import React from "react";
+import { useState } from "react";
+import { IPopulationGrowth } from "./stats.type";
 import {
-  ResponsiveContainer,
-  BarChart,
   Bar,
-  Rectangle,
   XAxis,
   YAxis,
-  CartesianGrid,
   Tooltip,
-  Legend,
+  BarChart,
+  Rectangle,
+  LabelList,
+  CartesianGrid,
+  ResponsiveContainer,
 } from "recharts";
+import populationData from "../../data/population-and-demography.json"
 
-export default function Stats() {
-  const data = [
-    {
-      name: "Page A",
-      uv: 4000,
-      pv: 2400,
-      amt: 2400,
-    },
-    {
-      name: "Page B",
-      uv: 3000,
-      pv: 1398,
-      amt: 2210,
-    },
-    {
-      name: "Page C",
-      uv: 2000,
-      pv: 9800,
-      amt: 2290,
-    },
-    {
-      name: "Page D",
-      uv: 2780,
-      pv: 3908,
-      amt: 2000,
-    },
-    {
-      name: "Page E",
-      uv: 1890,
-      pv: 4800,
-      amt: 2181,
-    },
-    {
-      name: "Page F",
-      uv: 2390,
-      pv: 3800,
-      amt: 2500,
-    },
-    {
-      name: "Page G",
-      uv: 3490,
-      pv: 4300,
-      amt: 2100,
-    },
-  ];
+export default function Stats({ currentRegion } : { currentRegion: string }) {
+  // const [popularList, setPopularList] = useState<IPopulationGrowth[]>(populationData as IPopulationGrowth[]);
+  const [year, setYear] = useState(1950);
 
-  const processedData = data.map(item => ({
+  const regionMatchColor = (region:string) => {
+    if (region === "asia") {
+      return "#FFBF00"
+    } else if (region === "europe") {
+      return "#CCCCFF"
+    } else if (region === "africa") {
+      return "#40E0D0"
+    } else if (region === "oceania") {
+      return "#DE3163"
+    } else if (region === "americas") {
+      return "#FF7F50"
+    } else {
+      return "#82ca9d"
+    }
+  }
+
+  const popularList = populationData as IPopulationGrowth[]
+
+  const popularListByYear = popularList.filter(data => data.year === year);
+  const popularListByRegion = popularListByYear.filter(data => currentRegion === "all" || currentRegion === data.region);
+  
+  const totalPopular = popularListByRegion.reduce((acc, data) => acc + data.population, 0);
+
+  const data = popularListByRegion.sort((a, b) => b.population - a.population).slice(0, 10).map(item => ({
     ...item,
-    fill: item.name === "Page G" ? "red" : "#82ca9d"
+    fill: regionMatchColor(item.region)
   }));
 
   return (
-    <ResponsiveContainer width="100%" minHeight="80vh">
-      <BarChart
-        data={processedData}
-        margin={{
-          top: 5,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
-        layout="vertical"
-      >
-        <Legend />
-        <CartesianGrid strokeDasharray="3" />
-        <YAxis
-          type="category"
-          dataKey="name"
-          textAnchor="end"
-          interval={0}
-        />
-        <XAxis type="number" />
-        <Tooltip />
-        <Bar
-          dataKey="uv"
-          fill="#82ca9d"
-          activeBar={<Rectangle fill="gold" stroke="purple" />}
-          // layout="vertical"
-        />
-      </BarChart>
-    </ResponsiveContainer>
+    <div style={{ position:"relative" }}>
+      <div className="total-wrap">
+        <h1 style={{ fontSize: "100px", textAlign:"end"}}>{year}</h1>
+        <h6 style={{ fontSize: "30px", textAlign:"end" }}>
+          Total: {Intl.NumberFormat('en-US').format(totalPopular)}
+        </h6>
+      </div>
+      <ResponsiveContainer width="100%" minHeight="70vh">
+        <BarChart
+          data={data}
+          margin={{
+            top: 5,
+            right: 30,
+            left: 30,
+            bottom: 5,
+          }}
+          layout="vertical"
+        >
+          <CartesianGrid strokeDasharray="0" fillOpacity={0} horizontal={false} />
+          <YAxis
+            type="category"
+            dataKey="country_name"
+            textAnchor="end"
+            interval={0}
+          />
+          <XAxis type="number" orientation="top" dataKey="population" />
+          <Tooltip />
+          <Bar
+            dataKey="population"
+            activeBar={<Rectangle fill="#82ca9d" />}
+          >
+            <LabelList
+              fill="#000"
+              dataKey="population"
+              position="right"
+              formatter={(value:number) => new Intl.NumberFormat('en-US').format(value)} 
+            />
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
