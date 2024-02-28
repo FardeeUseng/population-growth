@@ -6,7 +6,6 @@ import {
   YAxis,
   Tooltip,
   BarChart,
-  Rectangle,
   LabelList,
   CartesianGrid,
   ResponsiveContainer,
@@ -47,12 +46,6 @@ export default function Stats({ currentRegion } : { currentRegion: string }) {
 
   return (
     <div style={{ position:"relative" }}>
-      <div className="total-wrap">
-        <h1 style={{ fontSize: "100px", textAlign:"end"}}>{year}</h1>
-        <h6 style={{ fontSize: "30px", textAlign:"end" }}>
-          Total: {Intl.NumberFormat('en-US').format(totalPopular)}
-        </h6>
-      </div>
       <ResponsiveContainer width="100%" minHeight="70vh">
         <BarChart
           data={data}
@@ -73,10 +66,7 @@ export default function Stats({ currentRegion } : { currentRegion: string }) {
           />
           <XAxis type="number" orientation="top" dataKey="population" />
           <Tooltip />
-          <Bar
-            dataKey="population"
-            activeBar={<Rectangle fill="#82ca9d" />}
-          >
+          <Bar dataKey="population">
             <LabelList
               fill="#000"
               dataKey="population"
@@ -86,6 +76,30 @@ export default function Stats({ currentRegion } : { currentRegion: string }) {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      <div className="total-wrap">
+        <h1 style={{ fontSize: "100px", textAlign:"end"}}>{year}</h1>
+        <h6 style={{ fontSize: "30px", textAlign:"end" }}>
+          Total: {Intl.NumberFormat('en-US').format(totalPopular)}
+        </h6>
+      </div>
+      <div className="range-year-wrap">
+        <input
+          type="range"
+          min="1950" 
+          max="2021" 
+          value={year}
+          className="popular-range"
+          onChange={(e) => setYear(Number(e.target.value))}
+          style={{ width:"100%" }}
+        />
+        <div className="sliderticks" style={{ height:"20px"}}>
+          {Array.from({length: 2022 - 1950}, (_, index) => (
+            <span key={1950 + index}>
+              {(1950 + index) % 5 === 0 ? 1950 + index : ""}
+            </span>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

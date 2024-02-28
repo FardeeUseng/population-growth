@@ -20,6 +20,7 @@ function App() {
       <div className="reqion-wrap">
         <h3>Region:</h3>
         {[
+          { label: "all", color: "#000" },
           { label: "asia", color: "#FFBF00" },
           { label: "europe", color: "#CCCCFF" },
           { label: "africa", color: "#40E0D0" },
